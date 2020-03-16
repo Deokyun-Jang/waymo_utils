@@ -5,6 +5,7 @@
 * open3D
 * opencv-python
 * tensorflow
+* numpy
 
 ## Running the waymo parser 
 * `python3 parser.py`
