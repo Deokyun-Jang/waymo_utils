@@ -436,7 +436,7 @@ def save_lidar_labels(frame, save_path, frame_num):
         track_diff_level = laser_label.tracking_difficulty_level
 
         # label_list = [Type, Id, in_points, center_x, center_y, center_z, length, height, heading, det_diff_level, track_diff_level]
-        label_list = [Type, Id, center_x, center_y, center_z, length, height, heading, det_diff_level, track_diff_level]
+        label_list = [Type, Id, center_x, center_y, center_z, length, width, height, heading, det_diff_level, track_diff_level]
         indx_num = len(label_list)
         for indx in range(indx_num):
             if indx == (indx_num-1):

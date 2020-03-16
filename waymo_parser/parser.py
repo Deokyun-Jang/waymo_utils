@@ -30,9 +30,11 @@ if __name__=='__main__':
     Data_Dir = '/root/data/Waymo'
     Seq = '/0000'
     Seperate = '/training'      # /training, or /validation
+    # Seperate = '/validation'
 
     filename_list = glob.glob(Data_Dir + Seq + "/tf_training/*.tfrecord")   # /tf_training/*.tfrecord or /tf_validation/*.tfrecord
-    
+    # filename_list = glob.glob(Data_Dir + Seq + "/tf_validation/*.tfrecord")
+
     for scene_num, filename in enumerate(filename_list):
 
         # make directory

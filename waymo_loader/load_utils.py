@@ -1,24 +1,68 @@
 import os
-import tensorflow as tf
 import math
 import numpy as np
 import itertools
 import glob
 
-tf.enable_eager_execution()
-
-from waymo_open_dataset.utils import range_image_utils
-from waymo_open_dataset.utils import transform_utils
-from waymo_open_dataset.utils import  frame_utils
-from waymo_open_dataset import dataset_pb2 as open_dataset
-
 import cv2
 import open3d as o3d
 
+def read_label_txt(path):
+    label_list = []
+    with open(path) as f:
+        for line in f:
+            inner_list = [elt.strip() for elt in line.split(' ')]
+            label_list.append(inner_list)
+    
+    return label_list
+
 
 #################################################################################################
-# Visualize Camera Images and Camera Labels & SAVE
+# Visualize Camera Images and Camera Labels
 #################################################################################################
+
+def load_camera_image(img_path, frame_num):
+    '''
+        Load front, front left, front right, side left, side right images
+    '''
+    path_front = img_path + '/' + str(frame_num).zfill(3) + '_FRONT.png'
+    path_front_left = img_path + '/' + str(frame_num).zfill(3) + '_FRONT_LEFT.png'
+    path_front_right = img_path + '/' + str(frame_num).zfill(3) + '_FRONT_RIGHT.png'
+    path_side_left = img_path + '/' + str(frame_num).zfill(3) + '_SIDE_LEFT.png'
+    path_side_right = img_path + '/' + str(frame_num).zfill(3) + '_SIDE_RIGHT.png'
+
+    img_front = cv2.imread(path_front, cv2.IMREAD_COLOR)
+    img_front_cv = cv2.cvtColor(np.array(img_front), cv2.COLOR_RGB2BGR)
+    img_front_left = cv2.imread(path_front_left, cv2.IMREAD_COLOR)
+    img_front_left_cv = cv2.cvtColor(np.array(img_front_left), cv2.COLOR_RGB2BGR)
+    img_front_right = cv2.imread(path_front_right, cv2.IMREAD_COLOR)
+    img_front_right_cv = cv2.cvtColor(np.array(img_front_right), cv2.COLOR_RGB2BGR)
+    img_side_left = cv2.imread(path_side_left, cv2.IMREAD_COLOR)
+    img_side_left_cv = cv2.cvtColor(np.array(img_side_left), cv2.COLOR_RGB2BGR)
+    img_side_right = cv2.imread(path_side_right, cv2.IMREAD_COLOR)
+    img_side_right_cv = cv2.cvtColor(np.array(img_side_right), cv2.COLOR_RGB2BGR)
+
+    return img_front_cv, img_front_left_cv, img_front_right_cv, img_side_left_cv, img_side_right_cv
+
+
+
+
+def load_camera_label(img_label_path, frame_num):
+    path_label_front = img_label_path + '/' + str(frame_num).zfill(3) + '_FRONT.txt'
+    path_label_front_left = img_label_path + '/' + str(frame_num).zfill(3) + '_FRONT_LEFT.txt'
+    path_label_front_right = img_label_path + '/' + str(frame_num).zfill(3) + '_FRONT_RIGHT.txt'
+    path_label_side_left = img_label_path + '/' + str(frame_num).zfill(3) + '_SIDE_LEFT.txt'
+    path_label_side_right = img_label_path + '/' + str(frame_num).zfill(3) + '_SIDE_RIGHT.txt'
+
+    label_front = read_label_txt(path_label_front)
+    label_front_left = read_label_txt(path_label_front_left)
+    label_front_right = read_label_txt(path_label_front_right)
+    label_side_left = read_label_txt(path_label_side_left)
+    label_side_right = read_label_txt(path_label_side_right)
+
+    return label_front, label_front_left, label_front_right, label_side_left, label_side_right
+
+
 '''
 red = (0, 0, 255)
 green = (0, 255, 0)
@@ -28,9 +72,7 @@ yellow = (0, 255, 255)
 cyan = (255, 255, 0)
 magenta = (255, 0, 255)
 '''
-
-
-def get_corners(label):
+def get_corners(xylw):
     corners = np.zeros((4, 2), dtype=np.float32)
     '''
     1----4
@@ -40,56 +82,48 @@ def get_corners(label):
     '''
 
     # 1
-    corners[0, 0] = label.box.center_x - 0.5 * label.box.length
-    corners[0, 1] = label.box.center_y - 0.5 * label.box.width
+    corners[0, 0] = xylw[0] - 0.5 * xylw[2]
+    corners[0, 1] = xylw[1] - 0.5 * xylw[3]
 
     # 2
-    corners[1, 0] = label.box.center_x - 0.5 * label.box.length
-    corners[1, 1] = label.box.center_y + 0.5 * label.box.width
+    corners[1, 0] = xylw[0] - 0.5 * xylw[2]
+    corners[1, 1] = xylw[1] + 0.5 * xylw[3]
 
     # 3
-    corners[2, 0] = label.box.center_x + 0.5 * label.box.length
-    corners[2, 1] = label.box.center_y + 0.5 * label.box.width
+    corners[2, 0] = xylw[0] + 0.5 * xylw[2]
+    corners[2, 1] = xylw[1] + 0.5 * xylw[3]
 
     # 4
-    corners[3, 0] = label.box.center_x + 0.5 * label.box.length
-    corners[3, 1] = label.box.center_y - 0.5 * label.box.width
+    corners[3, 0] = xylw[0] + 0.5 * xylw[2]
+    corners[3, 1] = xylw[1] - 0.5 * xylw[3]
 
     return corners
 
-def show_camera_image_cv(camera_image, frame):
+
+def show_camera_image_with_label(camera_name, camera_img, camera_labels):
     """Show a camera image and the given camera labels."""
 
-    img = tf.image.decode_jpeg(camera_image.image).numpy()
-
-    img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)     # RGB --> BGR (opencv)
-    img_cv_labels = img_cv.copy()
+    img_cv = cv2.cvtColor(camera_img, cv2.COLOR_RGB2BGR)     # RGB --> BGR (opencv)
     
     # Draw the camera labels.
-    for camera_labels in frame.camera_labels:       # Front, Front right, Front left, Side right, Side left
-        # Ignore camera labels that do not correspond to this camera.
-        if camera_labels.name != camera_image.name:
-            continue
-        
-        # Iterate over the individual labels.
-        for label in camera_labels.labels:
-        
-            # get corner points (img-coord.)
-            img_corners = get_corners(label).reshape(-1, 1, 2).astype(int)
+    for label in camera_labels:       # Front, Front right, Front left, Side right, Side left
 
-            # Draw the object bounding box.
-            cv2.polylines(img_cv_labels, [img_corners], True, (0, 0, 255), 1)
-    
-    img_name = str( open_dataset.CameraName.Name.Name(camera_image.name) )
+        xylw = list(map(float, label[2:6]))
+
+        # get corner points (img-coord.)
+        img_corners = get_corners(xylw).reshape(-1, 1, 2).astype(int)
+
+        # Draw the object bounding box.
+        cv2.polylines(img_cv, [img_corners], True, (0, 0, 255), 1)
     
     # Show the camera image.
-    cv2.imshow(img_name, img_cv_labels)
+    cv2.imshow(camera_name, img_cv)
 
 
 #################################################################################################
-# Visualize Pointcloud and Save
+# Visualize Pointcloud and Labels
 #################################################################################################
-def get_bbox(label):
+def get_bbox(xyzlwh_y):
     '''
             X
             ^
@@ -110,13 +144,13 @@ def get_bbox(label):
     # Points
     points = []
     
-    c_x = label.box.center_x    # center x
-    c_y = label.box.center_y
-    c_z = label.box.center_z
-    L = label.box.length        # length
-    W = label.box.width
-    H = label.box.height
-    yaw = label.box.heading     # yaw (heading)
+    c_x = xyzlwh_y[0]    # center x
+    c_y = xyzlwh_y[1]
+    c_z = xyzlwh_y[2]
+    L = xyzlwh_y[3]        # length
+    W = xyzlwh_y[4]
+    H = xyzlwh_y[5]
+    yaw = xyzlwh_y[6]     # yaw (heading)
     
 
     # 0
@@ -214,21 +248,43 @@ def get_arrow(label):
     pass
 
 
-def show_points_with_label(points, frame):
+def show_points_with_label(points, lidar_labels):
     draw_list = []
 
     # Show Point cloud
     o3d_pcd = o3d.geometry.PointCloud()
-    o3d_pcd.points = o3d.utility.Vector3dVector(points)
+    o3d_pcd.points = o3d.utility.Vector3dVector(points[...,:3])
     draw_list.append(o3d_pcd)
 
     # draw bounding box
-    for laser_label in frame.laser_labels:
-        line_set = get_bbox(laser_label)
+    for lidar_label in lidar_labels:
 
-        Type     = laser_label.type
+        xyzlwh_yaw = list(map(float, lidar_label[2:9]))
+
+        line_set = get_bbox(xyzlwh_yaw)
+
+        Type     = lidar_label[0]
 
         draw_list.append(line_set)
 
     # print(np.asarray(pcd.points))      # change pcd to numpy array
     o3d.visualization.draw_geometries(draw_list)      # draw pcd
+
+def load_points(lidar_path, frame_num):
+    lidar_path_  = lidar_path + '/' + str(frame_num).zfill(3) + '_lidar.txt'
+    points = np.loadtxt(lidar_path_, delimiter=' ')
+    return points
+
+def load_lidar_label(lidar_label_path, frame_num):
+    lidar_label_path_ = lidar_label_path + '/' + str(frame_num).zfill(3) + '_lidar_label.txt'
+
+    lidar_label_list = read_label_txt(lidar_label_path_)
+
+    return lidar_label_list
+
+
+
+
+#################################################################################################
+# Create Projection Images and Visualize
+#################################################################################################
