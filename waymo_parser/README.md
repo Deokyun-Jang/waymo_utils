@@ -46,7 +46,7 @@
 ### LiDAR spherical images
 * sphercal_img : range, intenisty, elongation spherical coordinate image (float, txt)
 * range  
-    - Normalize (0~75m) to (0~1)
+    - Normalize (0, 75m) to (0, 1)
 * All of images were normalized in [0,1] --> [0,1] 범위 밖의 데이터는 -1로 채워넣음
 ### LiDAR Camera projection mask & index
 * image_indx : LiDAR points in the front image coordinate `[LiDAR_mask_index, image_width(x), image_height(y)]` (int, txt)
