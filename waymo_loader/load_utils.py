@@ -7,6 +7,9 @@ import glob
 import cv2
 import open3d as o3d
 
+from numpy import linalg as LA
+
+
 def read_label_txt(path):
     label_list = []
     with open(path) as f:
@@ -283,8 +286,82 @@ def load_lidar_label(lidar_label_path, frame_num):
     return lidar_label_list
 
 
+#################################################################################################
+# Load Spherical Images and Visualize
+#################################################################################################
+def load_spherical_image(spherical_img_path, frame_num):
+    range_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_range.txt'
+    intensity_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_intensity.txt'
+    elongation_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_elongation.txt'
+
+    range_img = np.loadtxt(range_img_path, delimiter=' ')
+    intenisty_img = np.loadtxt(intensity_img_path, delimiter=' ')
+    elongation_img = np.loadtxt(elongation_img_path, delimiter=' ')
+
+    return range_img, intenisty_img, elongation_img
+
+
+def show_spherical_image(spherical_name, spherical_img):
+    cv2.imshow(spherical_name, spherical_img)
+
 
 
 #################################################################################################
 # Create Projection Images and Visualize
 #################################################################################################
+def load_proj_indx(proj_indx_path, frame_num):
+    '''
+        [mask_indx, proj_width, proj_height]
+    '''
+    proj_indx_path_ = proj_indx_path + '/' + str(frame_num).zfill(3) + '.txt'
+    proj_indx = np.loadtxt(proj_indx_path_, delimiter=' ')
+
+    return proj_indx
+
+
+def show_points_on_image(projected_points, camera_image):
+    img = tf.image.decode_jpeg(camera_image.image).numpy()
+    img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)     # RGB --> BGR (opencv)
+
+    for point in projected_points:
+        # point[0] : width, col
+        # point[1] : height, row
+        cv2.circle(img_cv, (point[0], point[1]), 1, color=(0,0,255), thickness=-1)
+    
+    cv2.imshow('points_on_image', img_cv)
+
+
+
+def create_proj_img(proj_indx, points, camera_image):
+    img_height, img_width, _ = camera_image.shape
+
+    # range_img = np.zeros((img_height,img_width), dtype='uint8')
+    # intensity_img = np.zeros((img_height,img_width), dtype='uint8')
+    # height_img = np.zeros((img_height,img_width), dtype='uint8')
+    proj_range_img = np.zeros((img_height,img_width), dtype='float32')
+    proj_intensity_img = np.zeros((img_height,img_width), dtype='float32')
+    # proj_height_img = np.zeros((img_height,img_width), dtype='float32')
+
+    for indxx in proj_indx:
+        # indxx[0] : mask index of lidar points in front camera coordinate  
+        # indxx[1] : width, col
+        # indxx[2] : height, row
+        
+        lidar_mask = int(indxx[0])
+        indx_width = int(indxx[1])
+        indx_height = int(indxx[2])
+        
+        lidar_xyz = [points[lidar_mask,0], points[lidar_mask,1], points[lidar_mask,2]]
+        lidar_range = LA.norm(lidar_xyz)
+        lidar_intensity = points[lidar_mask ,3]
+        
+
+        proj_range_img[indx_height, indx_width] = lidar_range
+        proj_intensity_img[indx_height, indx_width] = lidar_intensity
+        # proj_height_img[int(point[1]), int(point[0])] = point[4]*255
+
+    return proj_range_img, proj_intensity_img
+
+
+def show_proj_image(proj_name, proj_img):
+    cv2.imshow(proj_name, proj_img)

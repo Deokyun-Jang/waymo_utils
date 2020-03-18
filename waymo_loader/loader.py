@@ -58,8 +58,29 @@ if __name__=='__main__':
         lidar_labels = load_lidar_label(lidar_label_path, frame_idx)
 
         # Show lidar points with 3d bbox
-        show_points_with_label(lidar_points, lidar_labels)
+        # show_points_with_label(lidar_points, lidar_labels)
 
+
+        ################################################################
+        # Load Spherical images and Visualization
+        ################################################################
+        range_img, intensity_img, elongation_img = load_spherical_image(spherical_img, frame_idx)
+        show_spherical_image('range', range_img)
+        show_spherical_image('intensity', intensity_img)
+        show_spherical_image('elongation', elongation_img)
+
+
+        ################################################################
+        # Create Projection images and Visualization
+        ################################################################
+        proj_indx = load_proj_indx(img_indx_path, frame_idx)
+        print(proj_indx.shape)
+        proj_range_img, proj_intensity_img = create_proj_img(proj_indx, lidar_points, img_front)
+
+        show_proj_image('proj_range', proj_range_img)
+        show_proj_image('proj_intensity', proj_intensity_img)
+
+        
 
         if cv2.waitKey(0) & 0xFF == 27:
             break

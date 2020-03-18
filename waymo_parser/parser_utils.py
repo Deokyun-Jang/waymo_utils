@@ -206,11 +206,6 @@ def get_spherical_image(range_image):
     np_range_image_intensity[np_range_image_intensity>1.0] = -1    # intensity : set 0.0 if value is bigger than 1.0
     np_range_image_elongation[np_range_image_elongation>1.0] = -1    # elongation : set 0.0 if value is bigger than 1.0
 
-    # np_range_image_range[np_range_image_range>75.0] = 75.0    # range : set 75.0 if value is bigger than 75m
-    # np_range_image_range /= 75.0
-    # np_range_image_intensity[np_range_image_intensity>1.0] = 0.0    # intensity : set 0.0 if value is bigger than 1.0
-    # np_range_image_elongation[np_range_image_elongation>1.0] = 0.0    # elongation : set 0.0 if value is bigger than 1.0
-
     spherical_img = np.array([np_range_image_range, np_range_image_intensity, np_range_image_elongation])
 
     return spherical_img
@@ -227,17 +222,18 @@ def show_spherical_img(spherical_img):
 
 def save_spherical_image(spherical_img, frame_num, save_path):
     """Save camera images."""
-    # image Save path
-    save_path_range = save_path + '/' + str(frame_num).zfill(3) + "_" + 'range' + ".bmp"
-    save_path_intensity = save_path + '/' + str(frame_num).zfill(3) + "_" + 'intensity' + ".bmp"
-    save_path_elongation = save_path + '/' + str(frame_num).zfill(3) + "_" + 'elongation' + ".bmp"
-    # save image (0~255 gray scale images)  ---> opencv는 저장하려면 grayscale은 255로 normalization 해야함
-    save_range_image = spherical_img[0,...]*255.0
-    save_intensity_image = spherical_img[1,...]*255.0
-    save_elongation_image = spherical_img[2,...]*255.0
-    cv2.imwrite(save_path_range, save_range_image)      # png로 저장하면 8bit로 변환되어서 저장됨
-    cv2.imwrite(save_path_intensity, save_intensity_image)
-    cv2.imwrite(save_path_elongation, save_elongation_image)
+    
+    # # image Save path
+    # save_path_range = save_path + '/' + str(frame_num).zfill(3) + "_" + 'range' + ".bmp"
+    # save_path_intensity = save_path + '/' + str(frame_num).zfill(3) + "_" + 'intensity' + ".bmp"
+    # save_path_elongation = save_path + '/' + str(frame_num).zfill(3) + "_" + 'elongation' + ".bmp"
+    # # save image (0~255 gray scale images)  ---> opencv는 저장하려면 grayscale은 255로 normalization 해야함
+    # save_range_image = spherical_img[0,...]*255.0
+    # save_intensity_image = spherical_img[1,...]*255.0
+    # save_elongation_image = spherical_img[2,...]*255.0
+    # cv2.imwrite(save_path_range, save_range_image)      # png로 저장하면 8bit로 변환되어서 저장됨
+    # cv2.imwrite(save_path_intensity, save_intensity_image)
+    # cv2.imwrite(save_path_elongation, save_elongation_image)
 
     # text Save path
     save_path_range_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'range' + ".txt"
