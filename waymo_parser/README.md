@@ -9,12 +9,14 @@
 
 ## Running the waymo parser 
 `python3 parser.py`
-* You have to change the path fo tf record files
+* You have to change the path of tf record files
 ```
-    Data_Dir = '/root/data/Waymo'
-    Seq = '/0000'
-    Seperate = '/validation'    # /training, or /validation
-    filename_list = glob.glob(Data_Dir + Seq + "/tf_training/*.tfrecord")   # /tf_training/*.tfrecord or /tf_validation/*.tfrecord
+    # Load tf record files path
+    Data_Dir = '/root/data/Waymo/original'
+    Seperate = '/training'      # /training, or /validation
+
+    # parsing path
+    Parsing_Dir = '/root/data/Waymo/parsed'
 ```
 
 ## Directory configuration of parsed Waymo dataset 
@@ -39,15 +41,17 @@
 ## Data Specifications
 ### Camera images 
 * Front, Front_left, Front_right, Side_left, Side_right (png)
-* camera_label : `[Type, Id, center_x, center_y, length, width, det_diff_level, track_diff_level]` (double, txt)
+* camera_label : `[Type, Id, center_x, center_y, length, width, det_diff_level, track_diff_level]` (double, string(Id), txt)
 ### LiDAR data
 * lidar : `[x, y, z, intensity]` (double. txt)
-* lidar_label : `[Type, Id, center_x, center_y, center_z, length, width, height, heading, det_diff_level, track_diff_level]` (double, txt)
+* lidar_label : `[Type, Id, center_x, center_y, center_z, length, width, height, heading, det_diff_level, track_diff_level]` (bin)
+* format : `float32`
 ### LiDAR spherical images
-* sphercal_img : range, intenisty, elongation spherical coordinate image (float, txt)
+* sphercal_img : range, intenisty, elongation spherical coordinate image (bin)
 * range  
     - Normalize (0, 75m) to (0, 1)
 * All of images were normalized in [0,1] --> [0,1] 범위 밖의 데이터는 -1로 채워넣음
+* format : `float32`
 ### LiDAR Camera projection mask & index
 * image_indx : LiDAR points in the front image coordinate `[LiDAR_mask_index, image_width(x), image_height(y)]` (int, txt)
     - LiDAR_make_index : LiDAR points masking in Front camera coord.

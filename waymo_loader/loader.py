@@ -12,19 +12,19 @@ from load_utils import *
 if __name__=='__main__':
 
     # File path
-    Data_Dir = '/root/data/Waymo'
+    Parsing_Dir = '/root/data/Waymo/parsed'
+    Seperate = '/training'
     Seq = '/0000'
-    Seperate = '/training'      # /training, or /validation
     Scene = '/scene_00'
 
-    camera_path = Data_Dir + Seq + Seperate + Scene + '/camera'
-    camera_label_path = Data_Dir + Seq + Seperate + Scene + '/camera_label'
-    lidar_path = Data_Dir + Seq + Seperate + Scene + '/lidar'
-    lidar_label_path = Data_Dir + Seq + Seperate + Scene + '/lidar_label'
-    spherical_img = Data_Dir + Seq + Seperate + Scene + '/spherical_img'
-    img_indx_path = Data_Dir + Seq + Seperate + Scene + '/image_indx'
+    camera_path       = Parsing_Dir + Seperate + Seq + Scene + '/camera'
+    camera_label_path = Parsing_Dir + Seperate + Seq + Scene + '/camera_label'
+    lidar_path        = Parsing_Dir + Seperate + Seq + Scene + '/lidar'
+    lidar_label_path  = Parsing_Dir + Seperate + Seq + Scene + '/lidar_label'
+    spherical_img     = Parsing_Dir + Seperate + Seq + Scene + '/spherical_img'
+    img_indx_path     = Parsing_Dir + Seperate + Seq + Scene + '/image_indx'
 
-    data_len = len(glob.glob(Data_Dir + Seq + Seperate + Scene + "/camera/*FRONT.png")) 
+    data_len = len(glob.glob(camera_path + "/*FRONT.png")) 
 
     for frame_idx in range(data_len):
 
@@ -65,6 +65,7 @@ if __name__=='__main__':
         # Load Spherical images and Visualization
         ################################################################
         range_img, intensity_img, elongation_img = load_spherical_image(spherical_img, frame_idx)
+        print(range_img.shape)
         show_spherical_image('range', range_img)
         show_spherical_image('intensity', intensity_img)
         show_spherical_image('elongation', elongation_img)

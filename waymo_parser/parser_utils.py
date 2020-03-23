@@ -235,170 +235,39 @@ def save_spherical_image(spherical_img, frame_num, save_path):
     # cv2.imwrite(save_path_intensity, save_intensity_image)
     # cv2.imwrite(save_path_elongation, save_elongation_image)
 
-    # text Save path
-    save_path_range_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'range' + ".txt"
-    save_path_intensity_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'intensity' + ".txt"
-    save_path_elongation_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'elongation' + ".txt"
-    # save text
-    np.savetxt(save_path_range_, spherical_img[0,...])      # (64,2650)
-    np.savetxt(save_path_intensity_, spherical_img[1,...])  # scale (0~1)
-    np.savetxt(save_path_elongation_, spherical_img[2,...])
+    # # text Save path
+    # save_path_range_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'range' + ".txt"
+    # save_path_intensity_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'intensity' + ".txt"
+    # save_path_elongation_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'elongation' + ".txt"
+    # # save text
+    # np.savetxt(save_path_range_, spherical_img[0,...], fmt='%.4f')      # (64,2650)
+    # np.savetxt(save_path_intensity_, spherical_img[1,...], fmt='%.4f')  # scale (0~1)
+    # np.savetxt(save_path_elongation_, spherical_img[2,...], fmt='%.4f')
+    
+    # bin save path
+    save_path_range_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'range' + ".bin"       # (64,2650)
+    save_path_intensity_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'intensity' + ".bin"
+    save_path_elongation_ = save_path + '/' + str(frame_num).zfill(3) + "_" + 'elongation' + ".bin"
+    # save bin files
+    spherical_img[0,...].astype(np.float32).tofile(save_path_range_)
+    spherical_img[1,...].astype(np.float32).tofile(save_path_intensity_)
+    spherical_img[2,...].astype(np.float32).tofile(save_path_elongation_)
 
 
 
 #################################################################################################
 # Visualize Pointcloud and Save
 #################################################################################################
-def get_bbox(label):
-    '''
-            X
-            ^
-            |
-            |
-    Y <------
-
-    bounding box parameters
-            0 -------- 3
-           /|         /|
-          1 -------- 2 .
-          | |        | |
-          . 4 -------- 7
-          |/         |/
-          5 -------- 6
-    '''
-
-    # Points
-    points = []
-    
-    c_x = label.box.center_x    # center x
-    c_y = label.box.center_y
-    c_z = label.box.center_z
-    L = label.box.length        # length
-    W = label.box.width
-    H = label.box.height
-    yaw = label.box.heading     # yaw (heading)
-    
-
-    # 0
-    points.append(
-        [
-            c_x - 0.5*W*np.sin(yaw) + 0.5*L*np.cos(yaw),     # x
-            c_y + 0.5*W*np.cos(yaw) + 0.5*L*np.sin(yaw),      # y
-            c_z + 0.5*H              # z
-        ]
-    ) 
-    # 1
-    points.append(
-        [
-            c_x - 0.5*W*np.sin(yaw) - 0.5*L*np.cos(yaw),     # x
-            c_y + 0.5*W*np.cos(yaw) - 0.5*L*np.sin(yaw),      # y
-            c_z + 0.5*H              # z
-        ]
-    ) 
-    # 2
-    points.append(
-        [
-            c_x + 0.5*W*np.sin(yaw) - 0.5*L*np.cos(yaw),     # x
-            c_y - 0.5*W*np.cos(yaw) - 0.5*L*np.sin(yaw),      # y
-            c_z + 0.5*H              # z
-        ]
-    ) 
-    # 3
-    points.append(
-        [
-            c_x + 0.5*W*np.sin(yaw) + 0.5*L*np.cos(yaw),     # x
-            c_y - 0.5*W*np.cos(yaw) + 0.5*L*np.sin(yaw),      # y
-            c_z + 0.5*H              # z
-        ]
-    ) 
-    # 4
-    points.append(
-        [
-            c_x - 0.5*W*np.sin(yaw) + 0.5*L*np.cos(yaw),     # x
-            c_y + 0.5*W*np.cos(yaw) + 0.5*L*np.sin(yaw),      # y
-            c_z - 0.5*H              # z
-        ]
-    ) 
-    # 5
-    points.append(
-        [
-            c_x - 0.5*W*np.sin(yaw) - 0.5*L*np.cos(yaw),     # x
-            c_y + 0.5*W*np.cos(yaw) - 0.5*L*np.sin(yaw),      # y
-            c_z - 0.5*H              # z
-        ]
-    ) 
-    # 6
-    points.append(
-        [
-            c_x + 0.5*W*np.sin(yaw) - 0.5*L*np.cos(yaw),     # x
-            c_y - 0.5*W*np.cos(yaw) - 0.5*L*np.sin(yaw),      # y
-            c_z - 0.5*H              # z
-        ]
-    ) 
-    # 7
-    points.append(
-        [
-            c_x + 0.5*W*np.sin(yaw) + 0.5*L*np.cos(yaw),     # x
-            c_y - 0.5*W*np.cos(yaw) + 0.5*L*np.sin(yaw),      # y
-            c_z - 0.5*H              # z
-        ]
-    ) 
-    # Lines
-    lines = [
-        [0, 1],
-        [0, 3],
-        [0, 4],
-        [1, 2],
-        [1, 5],
-        [2, 3],
-        [2, 6],
-        [3, 7],
-        [4, 5],
-        [4, 7],
-        [5, 6],
-        [6, 7],
-    ]
-
-    # opend3d line set
-    line_set = o3d.geometry.LineSet(
-        points=o3d.utility.Vector3dVector(points),
-        lines=o3d.utility.Vector2iVector(lines),
-    )
-    # color
-    colors = [[1, 0, 0] for i in range(len(lines))]
-    line_set.colors = o3d.utility.Vector3dVector(colors)
-
-    return line_set
-
-def get_arrow(label):
-    pass
-
-
-def show_points_with_label(points, frame):
-    draw_list = []
-
-    # Show Point cloud
-    o3d_pcd = o3d.geometry.PointCloud()
-    o3d_pcd.points = o3d.utility.Vector3dVector(points)
-    draw_list.append(o3d_pcd)
-
-    # draw bounding box
-    for laser_label in frame.laser_labels:
-        line_set = get_bbox(laser_label)
-
-        Type     = laser_label.type
-
-        draw_list.append(line_set)
-
-    # print(np.asarray(pcd.points))      # change pcd to numpy array
-    o3d.visualization.draw_geometries(draw_list)      # draw pcd
 
 def save_lidar_points(points, save_path, frame_num):
-    txt_path = save_path + "/" + str(frame_num).zfill(3) + '_lidar' + ".txt"
-    np.savetxt(txt_path, points)
+    # txt_path = save_path + "/" + str(frame_num).zfill(3) + '_lidar' + ".txt"
+    # np.savetxt(txt_path, points, fmt='%1.5e')
+    bin_path = save_path + "/" + str(frame_num).zfill(3) + ".bin"
+    points.astype(np.float32).tofile(bin_path)
+    
 
 def save_lidar_labels(frame, save_path, frame_num):
-    label_path = save_path + "/" + str(frame_num).zfill(3) + '_lidar_label' + ".txt"
+    label_path = save_path + "/" + str(frame_num).zfill(3) + ".txt"
     f = open(label_path, 'w')
 
     # label

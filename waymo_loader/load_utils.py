@@ -10,6 +10,7 @@ import open3d as o3d
 from numpy import linalg as LA
 
 
+
 def read_label_txt(path):
     label_list = []
     with open(path) as f:
@@ -273,13 +274,19 @@ def show_points_with_label(points, lidar_labels):
     # print(np.asarray(pcd.points))      # change pcd to numpy array
     o3d.visualization.draw_geometries(draw_list)      # draw pcd
 
+# def load_points(lidar_path, frame_num):
+#     lidar_path_  = lidar_path + '/' + str(frame_num).zfill(3) + '_lidar.txt'
+#     points = np.loadtxt(lidar_path_, delimiter=' ')
+#     return points
+
 def load_points(lidar_path, frame_num):
-    lidar_path_  = lidar_path + '/' + str(frame_num).zfill(3) + '_lidar.txt'
-    points = np.loadtxt(lidar_path_, delimiter=' ')
+    lidar_path_  = lidar_path + '/' + str(frame_num).zfill(3) + '.bin'
+    points = np.fromfile(lidar_path_, dtype=np.float32)
+    points = points.reshape((-1, 4))
     return points
 
 def load_lidar_label(lidar_label_path, frame_num):
-    lidar_label_path_ = lidar_label_path + '/' + str(frame_num).zfill(3) + '_lidar_label.txt'
+    lidar_label_path_ = lidar_label_path + '/' + str(frame_num).zfill(3) + '.txt'
 
     lidar_label_list = read_label_txt(lidar_label_path_)
 
@@ -289,14 +296,28 @@ def load_lidar_label(lidar_label_path, frame_num):
 #################################################################################################
 # Load Spherical Images and Visualize
 #################################################################################################
-def load_spherical_image(spherical_img_path, frame_num):
-    range_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_range.txt'
-    intensity_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_intensity.txt'
-    elongation_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_elongation.txt'
+# def load_spherical_image(spherical_img_path, frame_num):
+#     range_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_range.txt'
+#     intensity_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_intensity.txt'
+#     elongation_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_elongation.txt'
 
-    range_img = np.loadtxt(range_img_path, delimiter=' ')
-    intenisty_img = np.loadtxt(intensity_img_path, delimiter=' ')
-    elongation_img = np.loadtxt(elongation_img_path, delimiter=' ')
+#     range_img = np.loadtxt(range_img_path, delimiter=' ')
+#     intenisty_img = np.loadtxt(intensity_img_path, delimiter=' ')
+#     elongation_img = np.loadtxt(elongation_img_path, delimiter=' ')
+
+#     return range_img, intenisty_img, elongation_img
+
+def load_spherical_image(spherical_img_path, frame_num):
+    range_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_range.bin'
+    intensity_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_intensity.bin'
+    elongation_img_path = spherical_img_path + '/' + str(frame_num).zfill(3) + '_elongation.bin'
+
+    range_img = np.fromfile(range_img_path, dtype=np.float32)
+    intenisty_img = np.fromfile(intensity_img_path, dtype=np.float32)
+    elongation_img = np.fromfile(elongation_img_path, dtype=np.float32)
+    range_img = range_img.reshape((-1, 2650))       #(64,2650)
+    intenisty_img = intenisty_img.reshape((-1, 2650))
+    elongation_img = elongation_img.reshape((-1, 2650))
 
     return range_img, intenisty_img, elongation_img
 
