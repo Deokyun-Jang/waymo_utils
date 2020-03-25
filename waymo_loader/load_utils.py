@@ -339,18 +339,28 @@ def load_proj_indx(proj_indx_path, frame_num):
 
     return proj_indx
 
+# def show_points_on_image(projected_points, camera_image):
+#     img = tf.image.decode_jpeg(camera_image.image).numpy()
+#     img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)     # RGB --> BGR (opencv)
 
-def show_points_on_image(projected_points, camera_image):
-    img = tf.image.decode_jpeg(camera_image.image).numpy()
-    img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)     # RGB --> BGR (opencv)
-
-    for point in projected_points:
-        # point[0] : width, col
-        # point[1] : height, row
-        cv2.circle(img_cv, (point[0], point[1]), 1, color=(0,0,255), thickness=-1)
+#     for point in projected_points:
+#         # point[0] : width, col
+#         # point[1] : height, row
+#         cv2.circle(img_cv, (point[0], point[1]), 1, color=(0,0,255), thickness=-1)
     
-    cv2.imshow('points_on_image', img_cv)
+#     cv2.imshow('points_on_image', img_cv)
 
+def create_points_on_image(proj_indx, camera_image):
+    img_cv = cv2.cvtColor(camera_image, cv2.COLOR_RGB2BGR)     # RGB --> BGR (opencv)
+
+    for indx in proj_indx:
+        # indxx[0] : mask index of lidar points in front camera coordinate  
+        # indxx[1] : width, col
+        # indxx[2] : height, row
+        cv2.circle(img_cv, (int(indx[1]), int(indx[2])), 1, color=(0,0,255), thickness=-1)
+
+    return img_cv
+    
 
 
 def create_proj_img(proj_indx, points, camera_image):

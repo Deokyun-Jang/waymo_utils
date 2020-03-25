@@ -35,8 +35,8 @@ if __name__=='__main__':
     # parsing path
     Parsing_Dir = '/root/data/Waymo/parsed'
 
-
-    total_num_Seq = len(glob.glob(Data_Dir+ Seperate + "/*.tar"))
+    total_num_Seq = 32      # TODO: you have to change
+    
     for num_Seq in range(total_num_Seq):
 
         Seq = '/' + str(num_Seq).zfill(4)

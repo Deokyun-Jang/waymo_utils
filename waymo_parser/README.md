@@ -1,4 +1,4 @@
-# waymo_dataset_parser
+# waymo_parser
 * Load the waymo dataset from TF record and parsing datset to the text files
 
 ## Requirement Dependencies

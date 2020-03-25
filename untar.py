@@ -18,11 +18,11 @@ def untar(name, path, num):
 
 
 # File path
-Data_Dir = '/root/data/Waymo/original/training'
+Data_Dir = '/root/data/Waymo/original/testing'     # training, validation, testing
 # File list of *.tar
 filename_list = sorted(glob.glob(Data_Dir + "/*.tar"))
 
-# print(filename_list)
+print('# of files :', len(filename_list))
 
 threads = []
 for filenum, filename in enumerate(filename_list):

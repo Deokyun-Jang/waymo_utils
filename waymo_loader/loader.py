@@ -15,7 +15,7 @@ if __name__=='__main__':
     Parsing_Dir = '/root/data/Waymo/parsed'
     Seperate = '/training'
     Seq = '/0000'
-    Scene = '/scene_00'
+    Scene = '/scene_04'
 
     camera_path       = Parsing_Dir + Seperate + Seq + Scene + '/camera'
     camera_label_path = Parsing_Dir + Seperate + Seq + Scene + '/camera_label'
@@ -69,6 +69,8 @@ if __name__=='__main__':
         show_spherical_image('range', range_img)
         show_spherical_image('intensity', intensity_img)
         show_spherical_image('elongation', elongation_img)
+        # spherical_view = cv2.vconcat([np_range_image_range, np_range_image_intensity, np_range_image_elongation])
+        # cv2.imshow('spherical images', spherical_view)
 
 
         ################################################################
@@ -81,6 +83,9 @@ if __name__=='__main__':
         show_proj_image('proj_range', proj_range_img)
         show_proj_image('proj_intensity', proj_intensity_img)
 
+
+        points_on_img = create_points_on_image(proj_indx, img_front)
+        show_proj_image('points on front image', points_on_img)
         
 
         if cv2.waitKey(0) & 0xFF == 27:
