@@ -38,6 +38,13 @@
             - shperical_img
             - image_indx
 
+* camera : camera images 
+* camera_label : camera labels
+* lidar : lidar point cloud 
+* lidar_label : lidar labels 
+* spherical_img : spherical images 
+* image_indx : lidar-camera projection masks
+
 ## Data Specifications
 ### Camera images 
 * Front, Front_left, Front_right, Side_left, Side_right (png)
@@ -48,7 +55,7 @@
 * lidar_label : `[Type, Id, center_x, center_y, center_z, length, width, height, heading, det_diff_level, track_diff_level]` (txt)
 * format : `float32`
 ### LiDAR spherical images
-* sphercal_img : range, intenisty, elongation spherical coordinate image (bin)
+* sphercal_img : range, intenisty, elongation spherical coordinate images (bin)
 * range  
     - Normalize (0, 75m) to (0, 1)
 * All of images were normalized in [0,1] --> [0,1] 범위 밖의 데이터는 -1로 채워넣음
