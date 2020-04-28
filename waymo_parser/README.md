@@ -41,10 +41,11 @@
 ## Data Specifications
 ### Camera images 
 * Front, Front_left, Front_right, Side_left, Side_right (png)
-* camera_label : `[Type, Id, center_x, center_y, length, width, det_diff_level, track_diff_level]` (double, string(Id), txt)
+* camera_label : `[Type, Id, center_x, center_y, length, width, det_diff_level, track_diff_level]` (txt)
+* format : `float32`, `string(Id)`
 ### LiDAR data
-* lidar : `[x, y, z, intensity]` (double. txt)
-* lidar_label : `[Type, Id, center_x, center_y, center_z, length, width, height, heading, det_diff_level, track_diff_level]` (bin)
+* lidar : `[x, y, z, intensity]` (bin)
+* lidar_label : `[Type, Id, center_x, center_y, center_z, length, width, height, heading, det_diff_level, track_diff_level]` (txt)
 * format : `float32`
 ### LiDAR spherical images
 * sphercal_img : range, intenisty, elongation spherical coordinate image (bin)
