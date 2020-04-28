@@ -54,7 +54,8 @@
 * All of images were normalized in [0,1] --> [0,1] 범위 밖의 데이터는 -1로 채워넣음
 * format : `float32`
 ### LiDAR Camera projection mask & index
-* image_indx : LiDAR points in the front image coordinate `[LiDAR_mask_index, image_width(x), image_height(y)]` (int, txt)
+* image_indx : LiDAR points in the front image coordinate `[LiDAR_mask_index, image_width(x), image_height(y)]` (txt)
     - LiDAR_make_index : LiDAR points masking in Front camera coord.
     - image_width, height : LiDAR index in Front camera coord.
+* format : `int`
 
