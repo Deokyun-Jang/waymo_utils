@@ -22,7 +22,7 @@
 ## Directory configuration of parsed Waymo dataset 
 - 0000 (dataset number)
     - training
-        - scene_00 (scene number)
+        - scene_00 (scene number : same environmet-day, road, whether ...)
             - camera
             - camera_label
             - lidar
@@ -35,6 +35,12 @@
             - camera_label
             - lidar
             - lidar_label
+            - shperical_img
+            - image_indx
+    - testing
+        - scene_00 (scene number)
+            - camera
+            - lidar
             - shperical_img
             - image_indx
 
